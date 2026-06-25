@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brightspeed CCaaS — Live Status Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── Base ── */
+body{background:#F4F6F9;color:#1C2B3A;font-family:Arial,sans-serif;font-size:16px;min-height:100vh;padding-bottom:60px}
+
+/* ── Header ── */
+.top-bar{height:5px;background:#F46262}
+header{background:#30496D;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:16px}
+.logo{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px}.logo b{color:#F46262}
+.brand-div{width:1px;height:26px;background:#ffffff44}
+.brand-label{font-size:11px;color:#b0c4de;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.header-title{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.header-meta{text-align:right;font-size:12px;color:#b0c4de;line-height:1.8}
+.header-meta b{color:#fff}
+.refresh-btn{background:#F46262;color:#fff;border:none;border-radius:6px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-left:10px;transition:background .2s}
+.refresh-btn:hover{background:#e04545}
+
+/* ── Layout ── */
+.wrap{max-width:1220px;margin:0 auto;padding:0 36px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#30496D;margin:32px 0 14px;padding-left:3px}
+
+/* ── Executive summary ── */
+.exec-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:24px 28px;border-left:5px solid #30496D}
+.exec-text{font-size:16px;color:#374555;line-height:1.75}
+.exec-text b{color:#1C2B3A}
+.hi-red{color:#F46262;font-weight:700}
+.hi-blue{color:#30496D;font-weight:700}
+.hi-green{color:#2DA867;font-weight:700}
+
+/* ── Workstream cards ── */
+.ws-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px}
+.ws-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:24px 26px;border-top:4px solid #30496D}
+.ws-tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8090a8;margin-bottom:4px}
+.ws-name{font-size:15px;font-weight:700;color:#1C2B3A;margin-bottom:4px}
+.ws-sub{font-size:13px;color:#8090a8;margin-bottom:18px}
+.ws-pct{font-size:52px;font-weight:800;line-height:1;color:#30496D;margin-bottom:12px;letter-spacing:-2px}
+.ws-pct sup{font-size:22px;font-weight:700;letter-spacing:0}
+.ws-bar-track{height:8px;background:#edf0f5;border-radius:99px;overflow:hidden;margin-bottom:10px}
+.ws-bar-fill{height:100%;border-radius:99px;background:#30496D;transition:width .7s ease}
+.ws-source{font-size:11px;color:#a0aabb}
+
+/* ── KPI strip ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid #dde4ee;border-radius:12px;overflow:hidden;margin-bottom:32px}
+.kpi{padding:18px 22px;border-right:1px solid #edf0f5}
+.kpi:last-child{border-right:none}
+.kpi-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8090a8;margin-bottom:6px}
+.kpi-value{font-size:32px;font-weight:800;color:#1C2B3A;letter-spacing:-1px}
+.kpi-value.red{color:#F46262}
+.kpi-value.blue{color:#30496D}
+
+/* ── Workstream delivery bars ── */
+.ws-section-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:22px 28px;margin-bottom:32px}
+.ws-delivery-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#30496D;margin-bottom:16px}
+.ws-row{display:grid;grid-template-columns:220px 1fr 54px;gap:14px;align-items:center;padding:11px 0;border-top:1px solid #edf0f5}
+.ws-row:first-of-type{border-top:none}
+.ws-row-name{font-size:14px;font-weight:600;color:#374555}
+.ws-stacked{height:18px;background:#edf0f5;border-radius:6px;overflow:hidden;display:flex}
+.ws-pct-label{font-size:14px;font-weight:700;color:#30496D;text-align:right}
+
+/* ── Gantt timeline ── */
+.gantt-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:28px 32px;margin-bottom:32px}
+.gantt-title{font-size:15px;font-weight:700;color:#1C2B3A;margin-bottom:24px}
+.gantt-legend{display:flex;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+.gantt-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#374555}
+.gantt-swatch{width:14px;height:14px;border-radius:3px}
+.gantt-area{position:relative;padding-bottom:8px}
+.gantt-row{display:grid;grid-template-columns:90px 1fr;gap:0;align-items:center;margin-bottom:14px}
+.gantt-row-label{font-size:13px;font-weight:700;color:#30496D;padding-right:16px;text-align:right}
+.gantt-track{position:relative;height:30px;background:#edf0f5;border-radius:6px;overflow:visible}
+.gantt-seg{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;overflow:hidden}
+.gantt-seg-label{font-size:10px;font-weight:700;color:#fff;white-space:nowrap;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+.gantt-golive{position:absolute;top:-8px;height:46px;width:2px;background:#F46262;z-index:10}
+.gantt-golive::after{content:attr(data-label);position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#F46262;white-space:nowrap;background:#fff;padding:1px 4px;border-radius:3px;border:1px solid #F46262}
+.gantt-today{position:absolute;top:0;height:30px;width:2px;background:#30496D;z-index:11}
+.gantt-today::after{content:'Today';position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#30496D;white-space:nowrap;background:#EEF2F8;padding:1px 6px;border-radius:3px}
+.gantt-axis{position:relative;height:24px;margin-left:0}
+.gantt-axis-inner{position:relative;height:24px}
+.gantt-tick{position:absolute;top:0;font-size:11px;color:#8090a8;transform:translateX(-50%)}
+.gantt-decom{position:absolute;top:-8px;height:46px;width:2px;background:#8090a8;z-index:5}
+.gantt-decom::after{content:'Decom Sep 22';position:absolute;top:-18px;right:0;font-size:10px;font-weight:700;color:#8090a8;white-space:nowrap}
+
+/* ── Phase cards ── */
+.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:32px}
+.phase-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:22px 24px}
+.phase-tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8090a8;margin-bottom:4px}
+.phase-date{font-size:30px;font-weight:800;color:#30496D;margin-bottom:2px;letter-spacing:-1px}
+.phase-sub{font-size:13px;color:#8090a8;margin-bottom:16px}
+.phase-rows{border-top:1px solid #edf0f5}
+.phase-row{font-size:13px;color:#374555;padding:8px 0;border-bottom:1px solid #edf0f5;display:flex;justify-content:space-between}
+.phase-row:last-child{border-bottom:none}
+.phase-row-label{color:#8090a8}
+.phase-gl-badge{display:inline-block;background:#30496D;color:#fff;font-size:11px;font-weight:700;border-radius:5px;padding:3px 10px;margin-bottom:10px;letter-spacing:.04em}
+
+/* ── Bottom grid ── */
+.bottom-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+.card-b{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:22px 26px}
+.card-head{font-size:15px;font-weight:700;color:#1C2B3A;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.ic-green{color:#2DA867}
+.win-row{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:10px 0;border-top:1px solid #edf0f5}
+.win-row:first-of-type{border-top:none}
+.win-check{color:#2DA867;font-weight:700;font-size:15px;margin-top:1px}
+.win-title{font-size:14px;font-weight:700;color:#1C2B3A}
+.win-desc{font-size:12px;color:#8090a8;margin-top:2px}
+.ns-sub{font-size:10px;font-weight:700;color:#8090a8;letter-spacing:.08em;text-transform:uppercase;margin:14px 0 6px;padding-top:10px;border-top:1px solid #edf0f5}
+.ns-sub:first-of-type{border-top:none;margin-top:0;padding-top:0}
+.ns-row{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:baseline;padding:5px 0}
+.ns-n{font-size:24px;font-weight:800;line-height:1;color:#30496D;letter-spacing:-1px}
+.ns-label{font-size:13px;color:#374555}
+
+/* ── Footer ── */
+footer{border-top:1px solid #dde4ee;margin:28px 36px 0;padding-top:16px;font-size:11px;color:#8090a8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+
+/* ── Loading / Error screens ── */
+.loading-screen{min-height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid #dde4ee;border-top-color:#30496D;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-label{font-size:15px;color:#8090a8}
+.error-msg{background:#fff5f5;border:1px solid #F46262;border-radius:8px;padding:16px 20px;color:#c0292e;font-size:14px;margin:20px 0;max-width:520px}
+
+@media(max-width:800px){
+  .ws-grid,.phase-grid,.bottom-grid{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .wrap{padding:0 16px}
+  header{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen" class="loading-screen">
+  <div class="spinner"></div>
+  <div class="loading-label">Loading live data from Smartsheet…</div>
+</div>
+
+<!-- ERROR -->
+<div id="error-screen" style="display:none;padding:48px 36px;max-width:640px;margin:0 auto">
+  <div class="error-msg" id="error-msg"></div>
+  <button class="refresh-btn" style="margin:0" onclick="loadData()">↻ Try Again</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <div class="top-bar"></div>
+  <header>
+    <div class="brand">
+      <div class="logo">on<b>i</b>x</div>
+      <div class="brand-div"></div>
+      <div class="brand-label">Brightspeed Delivery</div>
+    </div>
+    <div class="header-title">CCaaS Migration — Live Status Dashboard</div>
+    <div class="header-meta">
+      Source: <b>SOW 973 Smartsheet</b> &nbsp;·&nbsp; Decom: <b>Sep 22, 2026</b><br>
+      <span id="last-updated"></span>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Executive Summary -->
+    <div class="section-label">Executive Summary</div>
+    <div class="exec-card">
+      <p class="exec-text">
+        The Brightspeed CCaaS migration program is <span class="hi-blue" id="overall-pct-text">—</span> complete,
+        tracking to Genesys decommission on <b>September 22, 2026</b>. Delivery is structured across three
+        workstreams — <b>CCaaS Migration</b> (<span class="hi-blue" id="ws3-pct-text">—</span>),
+        <b>Alvaria WFM Integration</b> (<span class="hi-blue" id="ws4-pct-text">—</span>), and
+        <b>Business Readiness</b> (<span class="hi-blue" id="ws2-pct-text">—</span>) —
+        each tracked independently. <b>86 call flows</b> phase to go-live on
+        <span class="hi-green">July 28</span>, <span class="hi-green">August 17</span>, and <span class="hi-green">September 1</span>.
+      </p>
+    </div>
+
+    <!-- Workstream Cards -->
+    <div class="section-label">Workstream Completion</div>
+    <div class="ws-grid">
+      <div class="ws-card">
+        <div class="ws-tag">Workstream 2</div>
+        <div class="ws-name">Business Readiness &amp; Training</div>
+        <div class="ws-sub">End User &amp; Admin Readiness</div>
+        <div class="ws-pct"><span id="ws2-pct">—</span><sup>%</sup></div>
+        <div class="ws-bar-track"><div class="ws-bar-fill" id="ws2-bar" style="width:0%"></div></div>
+        <div class="ws-source">Live · SOW 973 Smartsheet</div>
+      </div>
+      <div class="ws-card" style="border-top-color:#F46262">
+        <div class="ws-tag">Workstream 3</div>
+        <div class="ws-name">CCaaS Migration</div>
+        <div class="ws-sub">47 Flows · Phases 1–3</div>
+        <div class="ws-pct"><span id="ws3-pct">—</span><sup>%</sup></div>
+        <div class="ws-bar-track"><div class="ws-bar-fill" id="ws3-bar" style="width:0%;background:#F46262"></div></div>
+        <div class="ws-source">Live · SOW 973 Smartsheet</div>
+      </div>
+      <div class="ws-card">
+        <div class="ws-tag">Workstream 4</div>
+        <div class="ws-name">Alvaria WFM Integration</div>
+        <div class="ws-sub">Workforce Management</div>
+        <div class="ws-pct"><span id="ws4-pct">—</span><sup>%</sup></div>
+        <div class="ws-bar-track"><div class="ws-bar-fill" id="ws4-bar" style="width:0%"></div></div>
+        <div class="ws-source">Live · SOW 973 Smartsheet</div>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="kpi-strip">
+      <div class="kpi"><div class="kpi-label">Overall Complete</div><div class="kpi-value blue" id="kpi-overall">—</div></div>
+      <div class="kpi"><div class="kpi-label">Tasks Complete</div><div class="kpi-value" id="kpi-tasks">—</div></div>
+      <div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-value" id="kpi-inprog">—</div></div>
+      <div class="kpi"><div class="kpi-label">Not Started</div><div class="kpi-value" id="kpi-notstart">—</div></div>
+    </div>
+
+    <!-- Workstream Delivery Bars -->
+    <div class="ws-section-card">
+      <div class="ws-delivery-label">Workstream Delivery Breakdown</div>
+      <div class="ws-row">
+        <div class="ws-row-name">WS2 &nbsp;·&nbsp; Business Readiness</div>
+        <div class="ws-stacked" id="ws2-stack"></div>
+        <div class="ws-pct-label" id="ws2-pct-lbl">—%</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-row-name">WS3 &nbsp;·&nbsp; CCaaS Migration</div>
+        <div class="ws-stacked" id="ws3-stack"></div>
+        <div class="ws-pct-label" id="ws3-pct-lbl">—%</div>
+      </div>
+      <div class="ws-row">
+        <div class="ws-row-name">WS4 &nbsp;·&nbsp; Alvaria WFM</div>
+        <div class="ws-stacked" id="ws4-stack"></div>
+        <div class="ws-pct-label" id="ws4-pct-lbl">—%</div>
+      </div>
+    </div>
+
+    <!-- Gantt Timeline (matches Slide 3) -->
+    <div class="section-label">Phase Plan &amp; Cutover Timeline</div>
+    <div class="gantt-card">
+      <div class="gantt-title">CCaaS Migration — Jun 23 → Sep 22, 2026 &nbsp;·&nbsp; 86 Flows Across 3 Phases</div>
+
+      <div class="gantt-legend">
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#30496D"></div>Production Build</div>
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#6A8FBF"></div>ORT / Testing</div>
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#A0B8D8"></div>Approvals</div>
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#D0E0F0"></div>Hypercare</div>
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#F4B860"></div>Build &amp; SIT</div>
+        <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#F46262"></div>Go Live</div>
+      </div>
+
+      <!-- Phase 1 row -->
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:0;align-items:center;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#30496D;padding-right:16px;text-align:right">Phase 1<br><span style="font-size:11px;font-weight:400;color:#8090a8">24 flows</span></div>
+        <div class="gantt-track" id="track1"></div>
+      </div>
+
+      <!-- Phase 2 row -->
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:0;align-items:center;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#30496D;padding-right:16px;text-align:right">Phase 2<br><span style="font-size:11px;font-weight:400;color:#8090a8">20 flows</span></div>
+        <div class="gantt-track" id="track2"></div>
+      </div>
+
+      <!-- Phase 3 row -->
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:0;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:#30496D;padding-right:16px;text-align:right">Phase 3<br><span style="font-size:11px;font-weight:400;color:#8090a8">42 flows</span></div>
+        <div class="gantt-track" id="track3"></div>
+      </div>
+
+      <!-- Axis -->
+      <div style="display:grid;grid-template-columns:80px 1fr;gap:0;margin-top:8px">
+        <div></div>
+        <div class="gantt-axis-inner" id="gantt-axis"></div>
+      </div>
+
+      <div style="text-align:center;margin-top:20px;font-size:12px;color:#8090a8">
+        All go-lives are overnight deploys &nbsp;·&nbsp; P1 hypercare ends Aug 11 &nbsp;·&nbsp; P2 ends Aug 31 &nbsp;·&nbsp; P3 ends Sep 15 &nbsp;·&nbsp; 7-day buffer before decommission
+      </div>
+    </div>
+
+    <!-- Phase detail cards -->
+    <div class="phase-grid">
+      <div class="phase-card">
+        <div class="phase-tag">Phase 1</div>
+        <div class="phase-gl-badge">GO LIVE</div>
+        <div class="phase-date">July 28</div>
+        <div class="phase-sub">24 flows &nbsp;·&nbsp; 33 days out</div>
+        <div class="phase-rows">
+          <div class="phase-row"><span class="phase-row-label">SIT Build</span><span>May 11–29 ✓</span></div>
+          <div class="phase-row"><span class="phase-row-label">Prod Build</span><span>Jul 1–15</span></div>
+          <div class="phase-row"><span class="phase-row-label">ORT / Testing</span><span>Jul 16–21</span></div>
+          <div class="phase-row"><span class="phase-row-label">Approvals</span><span>Jul 22–27</span></div>
+          <div class="phase-row"><span class="phase-row-label">Hypercare ends</span><span>Aug 11</span></div>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-tag">Phase 2</div>
+        <div class="phase-gl-badge">GO LIVE</div>
+        <div class="phase-date">August 17</div>
+        <div class="phase-sub">20 flows &nbsp;·&nbsp; 53 days out</div>
+        <div class="phase-rows">
+          <div class="phase-row"><span class="phase-row-label">SIT Build</span><span>May 19–Jul 6</span></div>
+          <div class="phase-row"><span class="phase-row-label">Prod Build</span><span>Jul 17–30</span></div>
+          <div class="phase-row"><span class="phase-row-label">ORT / Testing</span><span>Jul 31–Aug 5</span></div>
+          <div class="phase-row"><span class="phase-row-label">Approvals</span><span>Aug 6</span></div>
+          <div class="phase-row"><span class="phase-row-label">Hypercare ends</span><span>Aug 31</span></div>
+        </div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-tag">Phase 3</div>
+        <div class="phase-gl-badge">GO LIVE</div>
+        <div class="phase-date">September 1</div>
+        <div class="phase-sub">42 flows &nbsp;·&nbsp; 68 days out</div>
+        <div class="phase-rows">
+          <div class="phase-row"><span class="phase-row-label">Build &amp; SIT</span><span>Jun 5–Jul 21</span></div>
+          <div class="phase-row"><span class="phase-row-label">Prod Build</span><span>Aug 3–14</span></div>
+          <div class="phase-row"><span class="phase-row-label">ORT / Testing</span><span>Aug 17–20</span></div>
+          <div class="phase-row"><span class="phase-row-label">Approvals</span><span>TBD</span></div>
+          <div class="phase-row"><span class="phase-row-label">Hypercare ends</span><span>Sep 15</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom-grid">
+      <div class="card-b">
+        <div class="card-head"><span class="ic-green">✓</span> Recent Wins</div>
+        <div class="win-row"><div class="win-check">✓</div><div><div class="win-title">Phase 1 Training Complete</div><div class="win-desc">End-user reporting and admin training 100% complete.</div></div></div>
+        <div class="win-row"><div class="win-check">✓</div><div><div class="win-title">Phase 1 UAT Cleared</div><div class="win-desc">All Phase 1 flows passed UAT — build-ready for July 28.</div></div></div>
+        <div class="win-row"><div class="win-check">✓</div><div><div class="win-title">Sky Network Blocker Resolved</div><div class="win-desc">All Onix engineers now in Citrix — no capacity gap.</div></div></div>
+        <div class="win-row"><div class="win-check">✓</div><div><div class="win-title">Production Protocol Active</div><div class="win-desc">Change-management framework live as of June 22.</div></div></div>
+        <div class="win-row"><div class="win-check">✓</div><div><div class="win-title">Phase 2 Architecture Locked</div><div class="win-desc">All macro routing questions resolved; Dialogflow webhooks confirmed.</div></div></div>
+      </div>
+      <div class="card-b">
+        <div class="card-head">Next Steps by Phase</div>
+        <div class="ns-sub">Phase 1 &nbsp;·&nbsp; Go Live Jul 28</div>
+        <div class="ns-row"><div class="ns-n">14</div><div class="ns-label">Complete production build</div></div>
+        <div class="ns-row"><div class="ns-n">1</div><div class="ns-label">Complete UAT</div></div>
+        <div class="ns-sub">Phase 2 &nbsp;·&nbsp; Go Live Aug 17</div>
+        <div class="ns-row"><div class="ns-n">21</div><div class="ns-label">Complete UAT</div></div>
+        <div class="ns-row"><div class="ns-n">3</div><div class="ns-label">Complete DFCX design</div></div>
+        <div class="ns-sub">Phase 3 &nbsp;·&nbsp; Go Live Sep 1</div>
+        <div class="ns-row"><div class="ns-n">10</div><div class="ns-label">Complete SIT build</div></div>
+        <div class="ns-row"><div class="ns-n">9</div><div class="ns-label">Begin / complete SIT testing</div></div>
+        <div class="ns-row"><div class="ns-n">17</div><div class="ns-label">Complete DFCX design &amp; review</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Brightspeed CCaaS Migration &nbsp;·&nbsp; Onix × Brightspeed Confidential</span>
+    <span>Live data: SOW 973 Smartsheet &nbsp;·&nbsp; Phase figures: Onix status report</span>
+  </footer>
+</div>
+
+<script>
+const SHEET_ID  = '5484188103823236';
+const API_TOKEN = 'JHhXug79ihL2CodGGdKIj3XdBfOuY3t9CsU4f';
+
+// ── Gantt helpers ────────────────────────────────────────────────
+const GSTART = new Date('2026-06-23');
+const GEND   = new Date('2026-09-22');
+const GTOTAL = GEND - GSTART;
+
+function gPct(d) { return ((new Date(d) - GSTART) / GTOTAL * 100).toFixed(2); }
+function gWidth(s, e) { return ((new Date(e) - new Date(s)) / GTOTAL * 100).toFixed(2); }
+
+function seg(left, width, color, label) {
+  if (parseFloat(width) < 0.2) return '';
+  return `<div class="gantt-seg" style="left:${left}%;width:${width}%;background:${color}">
+    <span class="gantt-seg-label">${label}</span>
+  </div>`;
+}
+
+function buildGantt() {
+  // Phase 1
+  document.getElementById('track1').innerHTML =
+    seg(gPct('2026-07-01'), gWidth('2026-07-01','2026-07-15'), '#30496D', 'Prod Build') +
+    seg(gPct('2026-07-16'), gWidth('2026-07-16','2026-07-21'), '#6A8FBF', 'ORT') +
+    seg(gPct('2026-07-22'), gWidth('2026-07-22','2026-07-27'), '#A0B8D8', 'Approvals') +
+    seg(gPct('2026-07-28'), gWidth('2026-07-28','2026-08-11'), '#D0E0F0', 'Hypercare') +
+    `<div class="gantt-golive" data-label="Jul 28" style="left:${gPct('2026-07-28')}%"></div>` +
+    todayLine();
+
+  // Phase 2
+  document.getElementById('track2').innerHTML =
+    seg(gPct('2026-07-17'), gWidth('2026-07-17','2026-07-30'), '#30496D', 'Prod Build') +
+    seg(gPct('2026-07-31'), gWidth('2026-07-31','2026-08-05'), '#6A8FBF', 'ORT') +
+    seg(gPct('2026-08-06'), gWidth('2026-08-06','2026-08-07'), '#A0B8D8', 'Approvals') +
+    seg(gPct('2026-08-17'), gWidth('2026-08-17','2026-08-31'), '#D0E0F0', 'Hypercare') +
+    `<div class="gantt-golive" data-label="Aug 17" style="left:${gPct('2026-08-17')}%"></div>` +
+    todayLine();
+
+  // Phase 3
+  document.getElementById('track3').innerHTML =
+    seg(gPct('2026-06-05'), gWidth('2026-06-05','2026-07-21'), '#F4B860', 'Build + SIT') +
+    seg(gPct('2026-08-03'), gWidth('2026-08-03','2026-08-14'), '#30496D', 'Prod Build') +
+    seg(gPct('2026-08-17'), gWidth('2026-08-17','2026-08-20'), '#6A8FBF', 'ORT') +
+    seg(gPct('2026-09-01'), gWidth('2026-09-01','2026-09-15'), '#D0E0F0', 'Hypercare') +
+    `<div class="gantt-golive" data-label="Sep 1" style="left:${gPct('2026-09-01')}%"></div>` +
+    todayLine() +
+    `<div class="gantt-decom" style="left:100%"></div>`;
+
+  // Axis ticks
+  const ticks = [
+    ['Jun 23','2026-06-23'],['Jun 30','2026-06-30'],['Jul 7','2026-07-07'],
+    ['Jul 14','2026-07-14'],['Jul 21','2026-07-21'],['Jul 28','2026-07-28'],
+    ['Aug 4','2026-08-04'],['Aug 11','2026-08-11'],['Aug 18','2026-08-18'],
+    ['Aug 25','2026-08-25'],['Sep 1','2026-09-01'],['Sep 8','2026-09-08'],
+    ['Sep 15','2026-09-15'],['Sep 22','2026-09-22']
+  ];
+  document.getElementById('gantt-axis').innerHTML = ticks
+    .map(([label, d]) => `<span class="gantt-tick" style="left:${gPct(d)}%">${label}</span>`)
+    .join('');
+}
+
+function todayLine() {
+  const now = new Date();
+  if (now < GSTART || now > GEND) return '';
+  return `<div class="gantt-today" style="left:${gPct(now.toISOString().slice(0,10))}%"></div>`;
+}
+
+// ── Data helpers ─────────────────────────────────────────────────
+function pct(val) { return Math.round((val || 0) * 100); }
+
+function stackBar(elId, p) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const done = Math.min(p, 100);
+  const inP  = Math.min(6, 100 - done);
+  const todo = Math.max(0, 100 - done - inP);
+  el.innerHTML =
+    `<div style="width:${done}%;background:#30496D;height:100%"></div>` +
+    `<div style="width:${inP}%;background:#6A8FBF;height:100%"></div>` +
+    `<div style="width:${todo}%;background:#edf0f5;height:100%"></div>`;
+}
+
+function show(id) {
+  ['loading-screen','error-screen','app'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+  if (id === 'loading-screen') document.getElementById('loading-screen').style.display = 'flex';
+}
+
+// ── Main fetch ───────────────────────────────────────────────────
+async function loadData() {
+  show('loading-screen');
+  try {
+    const res = await fetch(`https://api.smartsheet.com/2.0/sheets/${SHEET_ID}`, {
+      headers: { 'Authorization': `Bearer ${API_TOKEN}`, 'Accept': 'application/json' }
+    });
+    if (res.status === 401) throw new Error('Smartsheet token is invalid or expired. Please regenerate and redeploy.');
+    if (!res.ok) throw new Error(`Smartsheet API error ${res.status}`);
+    const data = await res.json();
+
+    const colMap = {};
+    (data.columns || []).forEach(c => { colMap[c.title] = c.id; });
+    const nameId   = colMap['Task Name'];
+    const pctId    = colMap['% Complete'];
+    const statusId = colMap['Status'];
+
+    function cellVal(row, colId) {
+      const c = (row.cells || []).find(c => c.columnId === colId);
+      return c ? c.value : null;
+    }
+
+    const rows = data.rows || [];
+    const overall = rows.find(r => (cellVal(r, nameId)||'').includes('Brightspeed | CCaaS'));
+    const ws2row  = rows.find(r => (cellVal(r, nameId)||'').includes('Workstream 2'));
+    const ws3row  = rows.find(r => (cellVal(r, nameId)||'').includes('Workstream 3'));
+    const ws4row  = rows.find(r => (cellVal(r, nameId)||'').includes('Workstream 4'));
+
+    const overallPct = pct(cellVal(overall, pctId));
+    const ws2Pct     = pct(cellVal(ws2row,  pctId));
+    const ws3Pct     = pct(cellVal(ws3row,  pctId));
+    const ws4Pct     = pct(cellVal(ws4row,  pctId));
+
+    const complete = rows.filter(r => cellVal(r, statusId) === 'Complete').length;
+    const inProg   = rows.filter(r => cellVal(r, statusId) === 'In Progress').length;
+    const notStart = rows.filter(r => cellVal(r, statusId) === 'Not Started').length;
+    const total    = rows.length;
+
+    document.getElementById('ws2-pct').textContent = ws2Pct;
+    document.getElementById('ws3-pct').textContent = ws3Pct;
+    document.getElementById('ws4-pct').textContent = ws4Pct;
+    document.getElementById('ws2-bar').style.width = ws2Pct + '%';
+    document.getElementById('ws3-bar').style.width = ws3Pct + '%';
+    document.getElementById('ws4-bar').style.width = ws4Pct + '%';
+    document.getElementById('overall-pct-text').textContent = overallPct + '%';
+    document.getElementById('ws2-pct-text').textContent = ws2Pct + '%';
+    document.getElementById('ws3-pct-text').textContent = ws3Pct + '%';
+    document.getElementById('ws4-pct-text').textContent = ws4Pct + '%';
+    document.getElementById('kpi-overall').textContent = overallPct + '%';
+    document.getElementById('kpi-tasks').textContent   = complete + ' / ' + total;
+    document.getElementById('kpi-inprog').textContent  = inProg;
+    document.getElementById('kpi-notstart').textContent = notStart;
+
+    stackBar('ws2-stack', ws2Pct);
+    stackBar('ws3-stack', ws3Pct);
+    stackBar('ws4-stack', ws4Pct);
+    document.getElementById('ws2-pct-lbl').textContent = ws2Pct + '%';
+    document.getElementById('ws3-pct-lbl').textContent = ws3Pct + '%';
+    document.getElementById('ws4-pct-lbl').textContent = ws4Pct + '%';
+
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      'Refreshed ' + now.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+
+    show('app');
+    buildGantt();
+  } catch(e) {
+    document.getElementById('error-msg').textContent = e.message;
+    show('error-screen');
+  }
+}
+
+// Boot
+loadData();
+</script>
+</body>
+</html>
