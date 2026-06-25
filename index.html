@@ -143,7 +143,6 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
 
 <div class="wrap">
 
-  <!-- Executive Summary -->
   <div class="section-label">Executive Summary</div>
   <div class="exec-card">
     <p class="exec-text">
@@ -154,7 +153,6 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
     </p>
   </div>
 
-  <!-- Workstream Cards -->
   <div class="section-label">Workstream Completion</div>
   <div class="ws-grid">
     <div class="ws-card">
@@ -183,7 +181,6 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
     </div>
   </div>
 
-  <!-- KPI Strip -->
   <div class="kpi-strip">
     <div class="kpi"><div class="kpi-label">Overall Complete</div><div class="kpi-value blue">63%</div></div>
     <div class="kpi"><div class="kpi-label">Tasks Complete</div><div class="kpi-value green">105 / 266</div></div>
@@ -191,39 +188,25 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
     <div class="kpi"><div class="kpi-label">Not Started</div><div class="kpi-value">122</div></div>
   </div>
 
-  <!-- Delivery Bars -->
   <div class="ws-section-card">
     <div class="ws-delivery-label">Workstream Delivery Breakdown</div>
     <div class="ws-row">
       <div class="ws-row-name">WS2 &nbsp;·&nbsp; Business Readiness</div>
-      <div class="ws-stacked">
-        <div style="width:53%;background:#30496D;height:100%"></div>
-        <div style="width:6%;background:#6A8FBF;height:100%"></div>
-        <div style="width:41%;background:#EEF2F7;height:100%"></div>
-      </div>
+      <div class="ws-stacked"><div style="width:53%;background:#30496D;height:100%"></div><div style="width:6%;background:#6A8FBF;height:100%"></div><div style="width:41%;background:#EEF2F7;height:100%"></div></div>
       <div class="ws-pct-label">53%</div>
     </div>
     <div class="ws-row">
       <div class="ws-row-name">WS3 &nbsp;·&nbsp; CCaaS Migration</div>
-      <div class="ws-stacked">
-        <div style="width:51%;background:#F46262;height:100%"></div>
-        <div style="width:6%;background:#f9a0a0;height:100%"></div>
-        <div style="width:43%;background:#EEF2F7;height:100%"></div>
-      </div>
+      <div class="ws-stacked"><div style="width:51%;background:#F46262;height:100%"></div><div style="width:6%;background:#f9a0a0;height:100%"></div><div style="width:43%;background:#EEF2F7;height:100%"></div></div>
       <div class="ws-pct-label">51%</div>
     </div>
     <div class="ws-row">
       <div class="ws-row-name">WS4 &nbsp;·&nbsp; Alvaria WFM</div>
-      <div class="ws-stacked">
-        <div style="width:49%;background:#30496D;height:100%"></div>
-        <div style="width:6%;background:#6A8FBF;height:100%"></div>
-        <div style="width:45%;background:#EEF2F7;height:100%"></div>
-      </div>
+      <div class="ws-stacked"><div style="width:49%;background:#30496D;height:100%"></div><div style="width:6%;background:#6A8FBF;height:100%"></div><div style="width:45%;background:#EEF2F7;height:100%"></div></div>
       <div class="ws-pct-label">49%</div>
     </div>
   </div>
 
-  <!-- Gantt Timeline -->
   <div class="section-label">Phase Plan &amp; Cutover Timeline</div>
   <div class="gantt-card">
     <div class="gantt-title">CCaaS Migration — Jun 23 → Sep 22, 2026 &nbsp;·&nbsp; 86 Flows Across 3 Phases</div>
@@ -235,67 +218,42 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
       <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#F4B860"></div>Build &amp; SIT</div>
       <div class="gantt-legend-item"><div class="gantt-swatch" style="background:#F46262"></div>Go Live</div>
     </div>
-
-    <!-- Phase 1 -->
     <div class="gantt-phase-row">
       <div class="gantt-row-label">Phase 1<br><span class="gantt-row-sub">24 flows</span></div>
       <div class="gantt-track">
-        <!-- Prod Build Jul 1–15: 8.8%→24.2% = 15.4% wide -->
         <div class="gantt-seg" style="left:8.8%;width:15.4%;background:#30496D"><span class="gantt-seg-label">Prod Build</span></div>
-        <!-- ORT Jul 16–21: 25.3%→30.8% = 5.5% wide -->
         <div class="gantt-seg" style="left:25.3%;width:5.5%;background:#6A8FBF"><span class="gantt-seg-label">ORT</span></div>
-        <!-- Approvals Jul 22–27: 31.9%→37.4% = 5.5% wide -->
         <div class="gantt-seg" style="left:31.9%;width:5.5%;background:#A0B8D8"><span class="gantt-seg-label">Appr.</span></div>
-        <!-- Hypercare Jul 28–Aug 11: 38.5%→53.8% = 15.4% wide -->
         <div class="gantt-seg" style="left:38.5%;width:15.4%;background:#D0E0F0"><span class="gantt-seg-label" style="color:#30496D">Hypercare</span></div>
-        <!-- Go Live Jul 28 -->
         <div class="gantt-golive" data-label="Jul 28" style="left:38.5%"></div>
-        <!-- Today Jun 25 = 2.2% -->
         <div class="gantt-today" style="left:2.2%"><div class="gantt-today-label">Today</div></div>
-        <!-- Decom Sep 22 -->
         <div class="gantt-decom"></div>
       </div>
     </div>
-
-    <!-- Phase 2 -->
     <div class="gantt-phase-row">
       <div class="gantt-row-label">Phase 2<br><span class="gantt-row-sub">20 flows</span></div>
       <div class="gantt-track">
-        <!-- Prod Build Jul 17–30: 26.4%→40.7% = 14.3% wide -->
         <div class="gantt-seg" style="left:26.4%;width:14.3%;background:#30496D"><span class="gantt-seg-label">Prod Build</span></div>
-        <!-- ORT Jul 31–Aug 5: 41.8%→47.3% = 5.5% wide -->
         <div class="gantt-seg" style="left:41.8%;width:5.5%;background:#6A8FBF"><span class="gantt-seg-label">ORT</span></div>
-        <!-- Approvals Aug 6: 48.4%→49.5% = 1.1% wide -->
         <div class="gantt-seg" style="left:48.4%;width:2%;background:#A0B8D8"></div>
-        <!-- Hypercare Aug 17–31: 60.4%→75.8% = 15.4% wide -->
         <div class="gantt-seg" style="left:60.4%;width:15.4%;background:#D0E0F0"><span class="gantt-seg-label" style="color:#30496D">Hypercare</span></div>
-        <!-- Go Live Aug 17 -->
         <div class="gantt-golive" data-label="Aug 17" style="left:60.4%"></div>
         <div class="gantt-today" style="left:2.2%"><div class="gantt-today-label">Today</div></div>
         <div class="gantt-decom"></div>
       </div>
     </div>
-
-    <!-- Phase 3 -->
     <div class="gantt-phase-row" style="margin-bottom:8px">
       <div class="gantt-row-label">Phase 3<br><span class="gantt-row-sub">42 flows</span></div>
       <div class="gantt-track">
-        <!-- Build+SIT Jun 5–Jul 21: ~0%→30.8% (starting from Jun 23) so 0%→30.8% -->
         <div class="gantt-seg" style="left:0%;width:30.8%;background:#F4B860"><span class="gantt-seg-label">Build + SIT</span></div>
-        <!-- Prod Build Aug 3–14: 45.1%→57.1% = 12.1% wide -->
         <div class="gantt-seg" style="left:45.1%;width:12.1%;background:#30496D"><span class="gantt-seg-label">Prod Build</span></div>
-        <!-- ORT Aug 17–20: 60.4%→63.7% = 3.3% wide -->
-        <div class="gantt-seg" style="left:60.4%;width:3.3%;background:#6A8FBF"><span class="gantt-seg-label"></span></div>
-        <!-- Hypercare Sep 1–15: 76.9%→92.3% = 15.4% wide -->
+        <div class="gantt-seg" style="left:60.4%;width:3.3%;background:#6A8FBF"></div>
         <div class="gantt-seg" style="left:76.9%;width:15.4%;background:#D0E0F0"><span class="gantt-seg-label" style="color:#30496D">Hypercare</span></div>
-        <!-- Go Live Sep 1 -->
         <div class="gantt-golive" data-label="Sep 1" style="left:76.9%"></div>
         <div class="gantt-today" style="left:2.2%"><div class="gantt-today-label">Today</div></div>
         <div class="gantt-decom"></div>
       </div>
     </div>
-
-    <!-- Axis -->
     <div class="gantt-axis-row">
       <div></div>
       <div class="gantt-axis-inner">
@@ -315,11 +273,9 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
         <span class="gantt-tick" style="left:100%">Sep 22</span>
       </div>
     </div>
-
     <div class="gantt-note">All go-lives are overnight deploys &nbsp;·&nbsp; P1 hypercare ends Aug 11 &nbsp;·&nbsp; P2 ends Aug 31 &nbsp;·&nbsp; P3 ends Sep 15 &nbsp;·&nbsp; 7-day buffer before decommission</div>
   </div>
 
-  <!-- Phase Detail Cards -->
   <div class="phase-grid">
     <div class="phase-card">
       <div class="phase-tag">Phase 1</div>
@@ -362,7 +318,6 @@ footer{border-top:1px solid #dde4ee;margin:32px 40px 0;padding-top:16px;font-siz
     </div>
   </div>
 
-  <!-- Bottom Grid -->
   <div class="bottom-grid">
     <div class="card-b">
       <div class="card-head"><span class="ic-green">✓</span> Recent Wins</div>
